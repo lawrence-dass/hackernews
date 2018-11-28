@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import Search from './components/Search';
+import List from './components/List';
 import './App.css';
 
 const list = [
@@ -21,21 +23,44 @@ const list = [
 ];
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { list, searchTerm: '' };
+    this.onDismiss = this.onDismiss.bind(this);
+    this.onSearchChange = this.onSearchChange.bind(this);
+  }
+
+  onDismiss(id) {
+    const isNotId = item => item.objectId !== id;
+    const newList = this.state.list.filter(isNotId);
+    this.setState(() => {
+      return {
+        list: newList
+      };
+    });
+  }
+
+  onSearchChange(event) {
+    this.setState({ searchTerm: event.target.value });
+  }
+
   render() {
+    // object destructuring
+    const { list, searchTerm } = this.state;
+
+    // filtering the list based on search input and then mapping over it to render filtered list
+    const filteredList = list.filter(item => {
+      return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+
     return (
       <div className="App">
-        <h2>
-          {list.map(item => (
-            <div key={item.objectId}>
-              <span>
-                <a href={item.url}> {item.title}</a>
-              </span>
-              <span>{item.author}</span>
-              <span>{item.num_comments}</span>
-              <span>{item.points}</span>
-            </div>
-          ))}
-        </h2>
+        {/* Search only handles the search term event */}
+        <Search value={searchTerm} onChange={this.onSearchChange}>
+          {/* Passing Search text as child to this component which can be access from this.props in Search component */}
+          Search:
+        </Search>
+        <List filteredList={filteredList} onDismiss={this.onDismiss} />
       </div>
     );
   }
