@@ -54,13 +54,15 @@ class App extends Component {
     });
 
     return (
-      <div className="App">
-        {/* Search only handles the search term event */}
-        <Search value={searchTerm} onChange={this.onSearchChange}>
-          {/* Passing Search text as child to this component which can be access from this.props in Search component */}
-          Search:
-        </Search>
-        <List filteredList={filteredList} onDismiss={this.onDismiss} />
+      <div className="page">
+        <div className="interactions">
+          {/* Search only handles the search term event */}
+          <Search value={searchTerm} onChange={this.onSearchChange}>
+            {/* Passing Search text as child to this component which can be access from this.props in Search component */}
+            Search:
+          </Search>
+          <List filteredList={filteredList} onDismiss={this.onDismiss} />
+        </div>
       </div>
     );
   }
