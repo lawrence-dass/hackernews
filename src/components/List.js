@@ -4,7 +4,7 @@ import Button from './Button';
 const List = ({ filteredList, onDismiss }) => (
   <div className="list">
     {filteredList.map(item => (
-      <div key={item.objectId} className="list-row">
+      <div key={item.objectID} className="list-row">
         <span style={{ width: '40%' }}>
           <a href={item.url}> {item.title}</a>
         </span>
@@ -14,7 +14,7 @@ const List = ({ filteredList, onDismiss }) => (
         <span style={{ width: '10%' }}>
           <Button
             onClick={() => {
-              onDismiss(item.objectId);
+              onDismiss(item.objectID);
             }}
             className="button-inline"
           >
