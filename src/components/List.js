@@ -1,9 +1,9 @@
 import React from 'react';
 import Button from './Button';
 
-const List = ({ filteredList, onDismiss }) => (
+const List = ({ list, onDismiss }) => (
   <div className="list">
-    {filteredList.map(item => (
+    {list.map(item => (
       <div key={item.objectID} className="list-row">
         <span style={{ width: '40%' }}>
           <a href={item.url}> {item.title}</a>

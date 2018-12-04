@@ -15,3 +15,5 @@ serviceWorker.unregister();
 if (module.hot) {
   module.hot.accept();
 }
+
+// Loading message at the begining of the application

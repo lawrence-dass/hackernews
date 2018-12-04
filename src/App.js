@@ -25,9 +25,10 @@ import './App.css';
 const DEFAULT_QUERY = 'redux';
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
-const PARAM_SEARCH = 'query';
+const PARAM_SEARCH = 'query=';
+const PARAM_PAGE = 'page=';
 
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}=${DEFAULT_QUERY}`;
+const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}${PARAM_PAGE}`;
 
 class App extends Component {
   constructor(props) {
@@ -35,6 +36,7 @@ class App extends Component {
     this.state = { list: null, searchTerm: DEFAULT_QUERY };
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
+    this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
   }
 
@@ -44,12 +46,23 @@ class App extends Component {
     });
   }
 
-  componentDidMount() {
-    const { searchTerm } = this.state;
+  fetchSearchTopStories(searchTerm, page = 0) {
     fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}=${DEFAULT_QUERY}`)
       .then(response => response.json())
       .then(list => this.setSearchTopStories(list))
       .catch(error => error);
+  }
+
+  componentDidMount() {
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
+  }
+
+  onSearchSubmit(event) {
+    console.log('onSearchSubmit triggered.');
+    event.preventDefault();
+    const { searchTerm } = this.state;
+    this.fetchSearchTopStories(searchTerm);
   }
 
   onDismiss(id) {
@@ -72,26 +85,30 @@ class App extends Component {
   render() {
     // object destructuring
     const { list, searchTerm } = this.state;
-
+    const page = (list && list.page) || 0;
     // if no data in list, return null
     if (!list) {
       return null;
     }
 
-    // filtering the list based on search input and then mapping over it to render filtered list
-    const filteredList = list.hits.filter(item => {
-      return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-    });
+    // filtering the list based on search input and then mapping over it to render filtered list (refactored and removed , to ensure server side fitlering)
+    // const filteredList = list.hits.filter(item => {
+    //   return item.title.toLowerCase().includes(searchTerm.toLowerCase());
+    // });
 
     return (
       <div className="page">
         <div className="interactions">
           {/* Search only handles the search term event */}
-          <Search value={searchTerm} onChange={this.onSearchChange}>
+          <Search
+            value={searchTerm}
+            onChange={this.onSearchChange}
+            onSubmit={this.onSearchSubmit}
+          >
             {/* Passing Search text as child to this component which can be access from this.props in Search component */}
-            Search:
+            Search
           </Search>
-          <List filteredList={filteredList} onDismiss={this.onDismiss} />
+          {list && <List list={list.hits} onDismiss={this.onDismiss} />}
         </div>
       </div>
     );
