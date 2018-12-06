@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Search from './components/Search';
 import List from './components/List';
 import './App.css';
+import Button from './components/Button';
 
 // const list = [
 //   {
@@ -23,12 +24,12 @@ import './App.css';
 // ];
 
 const DEFAULT_QUERY = 'redux';
+const DEFAULT_HPP = '12';
 const PATH_BASE = 'https://hn.algolia.com/api/v1';
 const PATH_SEARCH = '/search';
 const PARAM_SEARCH = 'query=';
 const PARAM_PAGE = 'page=';
-
-const url = `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${DEFAULT_QUERY}${PARAM_PAGE}`;
+const PARAM_HPP = 'hitsPerPage=';
 
 class App extends Component {
   constructor(props) {
@@ -41,19 +42,27 @@ class App extends Component {
   }
 
   setSearchTopStories(list) {
+    const { hits, page } = list;
+    const oldHits = page !== 0 ? this.state.list.hits : [];
+    const updatedHits = [...oldHits, ...hits];
     this.setState(() => {
-      return { list };
+      return { list: { hits: updatedHits, page } };
     });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    fetch(`${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}=${DEFAULT_QUERY}`)
+    console.log('fetchSearchTopStories triggered');
+
+    fetch(
+      `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
+    )
       .then(response => response.json())
       .then(list => this.setSearchTopStories(list))
       .catch(error => error);
   }
 
   componentDidMount() {
+    console.log(this.state);
     const { searchTerm } = this.state;
     this.fetchSearchTopStories(searchTerm);
   }
@@ -85,6 +94,7 @@ class App extends Component {
   render() {
     // object destructuring
     const { list, searchTerm } = this.state;
+    console.log(this.state);
     const page = (list && list.page) || 0;
     // if no data in list, return null
     if (!list) {
@@ -109,6 +119,11 @@ class App extends Component {
             Search
           </Search>
           {list && <List list={list.hits} onDismiss={this.onDismiss} />}
+          <Button
+            onClick={() => this.fetchSearchTopStories(searchTerm, page + 1)}
+          >
+            More
+          </Button>
         </div>
       </div>
     );
