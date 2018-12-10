@@ -1,28 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import Search from './components/Search';
-import List from './components/List';
+import Search from './Search';
+import List from './List';
 import './App.css';
-import Button from './components/Button';
-
-// const list = [
-//   {
-//     title: 'React',
-//     url: 'https://reactjs.org',
-//     author: 'Jordan Walke',
-//     num_comments: 3,
-//     points: 4,
-//     objectId: 0
-//   },
-//   {
-//     title: 'Redux',
-//     url: 'https://redux.org/',
-//     author: ['Dan Abramov', 'Andrew Clark'],
-//     num_comments: 2,
-//     points: 5,
-//     objectId: 1
-//   }
-// ];
+import Button from './Button';
 
 const DEFAULT_QUERY = 'redux';
 const DEFAULT_HPP = '12';
@@ -60,8 +41,6 @@ class App extends Component {
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
-    console.log('fetchSearchTopStories triggered');
-
     axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
@@ -132,7 +111,6 @@ class App extends Component {
   render() {
     // object destructuring
     const { lists, searchKey, searchTerm, error } = this.state;
-    console.log(this.state);
     const page = (lists && lists[searchKey] && lists[searchKey].page) || 0;
     const list = (lists && lists[searchKey] && lists[searchKey].hits) || [];
     // if no data in list, return null
