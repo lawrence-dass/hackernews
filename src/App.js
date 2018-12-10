@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import axios from 'axios';
 import Search from './components/Search';
 import List from './components/List';
 import './App.css';
@@ -32,6 +33,7 @@ const PARAM_PAGE = 'page=';
 const PARAM_HPP = 'hitsPerPage=';
 
 class App extends Component {
+  _isMounted = false;
   constructor(props) {
     super(props);
     this.state = {
@@ -60,15 +62,16 @@ class App extends Component {
   fetchSearchTopStories(searchTerm, page = 0) {
     console.log('fetchSearchTopStories triggered');
 
-    fetch(
+    axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
-      .then(response => response.json())
-      .then(list => this.setSearchTopStories(list))
-      .catch(error =>
-        this.setState(() => {
-          return { error };
-        })
+      .then(list => this._isMounted && this.setSearchTopStories(list.data))
+      .catch(
+        error =>
+          this._isMounted &&
+          this.setState(() => {
+            return { error };
+          })
       );
   }
 
@@ -77,6 +80,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     const { searchTerm } = this.state;
     this.setState(() => {
       return {
@@ -84,6 +88,10 @@ class App extends Component {
       };
     });
     this.fetchSearchTopStories(searchTerm);
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false;
   }
 
   onSearchSubmit(event) {
