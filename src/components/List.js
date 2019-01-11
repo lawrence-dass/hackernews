@@ -1,9 +1,19 @@
 import React from 'react';
 import Button from './Button';
+import propTypes from 'prop-types';
+import { sortBy } from 'lodash';
 
-const List = ({ list, onDismiss }) => (
+const SORTS = {
+  NONE: list => list,
+  TITLE: list => sortBy(list, 'title'),
+  AUTHOR: list => sortBy(list, 'author'),
+  COMMENTS: list => sortBy(list, 'num_comments').reverse(),
+  POINTS: list => sortBy(list, 'points').reverse()
+};
+
+const List = ({ list, sortKey, onSort, onDismiss }) => (
   <div className="list">
-    {list.map(item => (
+    {SORTS[sortKey](list).map(item => (
       <div key={item.objectID} className="list-row">
         <span style={{ width: '40%' }}>
           <a href={item.url}> {item.title || 'No Title'}</a>
@@ -25,5 +35,11 @@ const List = ({ list, onDismiss }) => (
     ))}
   </div>
 );
+
+Button.propTypes = {
+  onClick: propTypes.func.isRequired,
+  className: propTypes.string,
+  children: propTypes.node.isRequired
+};
 
 export default List;

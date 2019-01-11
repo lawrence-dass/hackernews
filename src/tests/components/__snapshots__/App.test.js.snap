@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`App Component should render App component correctly 1`] = `
+exports[`App Component should render App Component correctly 1`] = `
 <div
   className="page"
 >
@@ -30,13 +30,12 @@ exports[`App Component should render App component correctly 1`] = `
       <div
         className="interactions"
       >
-        <button
-          className=""
-          onClick={[Function]}
-          type="type"
-        >
-          More
-        </button>
+        <div>
+          <img
+            alt="page loading"
+            src="post-loader.gif"
+          />
+        </div>
       </div>
     </div>
   </div>

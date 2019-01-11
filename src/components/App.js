@@ -4,6 +4,9 @@ import Search from './Search';
 import List from './List';
 import './App.css';
 import Button from './Button';
+import propTypes from 'prop-types';
+
+import pageLoading from '../assets/images/post-loader.gif';
 
 import {
   DEFAULT_QUERY,
@@ -15,6 +18,27 @@ import {
   PARAM_HPP
 } from '../constants';
 
+const PageLoading = () => {
+  return (
+    <div>
+      <img src={pageLoading} alt="page loading" />
+    </div>
+  );
+};
+
+const PostLoading = () => {
+  return (
+    <div>
+      <img src={pageLoading} alt="post loading" />
+    </div>
+  );
+};
+
+const withLoading = Component => ({ isLoading, ...rest }) =>
+  isLoading ? <PostLoading /> : <Component {...rest} />;
+
+const ButtonWithLoading = withLoading(Button);
+
 class App extends Component {
   _isMounted = false;
   constructor(props) {
@@ -23,13 +47,16 @@ class App extends Component {
       lists: null,
       searchKey: '',
       searchTerm: DEFAULT_QUERY,
-      error: null
+      error: null,
+      isLoading: false,
+      sortKey: 'NONE'
     };
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
+    this.onSort = this.onSort.bind(this);
   }
 
   setSearchTopStories(list) {
@@ -38,11 +65,17 @@ class App extends Component {
     const oldHits = lists && lists[searchKey] ? lists[searchKey].hits : [];
     const updatedHits = [...oldHits, ...hits];
     this.setState(() => {
-      return { lists: { ...lists, [searchKey]: { hits: updatedHits, page } } };
+      return {
+        lists: { ...lists, [searchKey]: { hits: updatedHits, page } },
+        isLoading: false
+      };
     });
   }
 
   fetchSearchTopStories(searchTerm, page = 0) {
+    this.setState(() => {
+      return { isLoading: true };
+    });
     axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
@@ -110,9 +143,24 @@ class App extends Component {
     this.setState({ searchTerm: event.target.value });
   }
 
+  onSort(sortKey) {
+    this.setState(sortKey => {
+      return {
+        sortKey
+      };
+    });
+  }
+
   render() {
     // object destructuring
-    const { lists, searchKey, searchTerm, error } = this.state;
+    const {
+      lists,
+      searchKey,
+      searchTerm,
+      error,
+      isLoading,
+      sortKey
+    } = this.state;
     const page = (lists && lists[searchKey] && lists[searchKey].page) || 0;
     const list = (lists && lists[searchKey] && lists[searchKey].hits) || [];
     // if no data in list, return null
@@ -137,6 +185,7 @@ class App extends Component {
             {/* Passing Search text as child to this component which can be access from this.props in Search component */}
             Search
           </Search>
+
           {error ? (
             <p>
               Something went wrong. Possible issue with URL or type of search,
@@ -144,15 +193,25 @@ class App extends Component {
             </p>
           ) : (
             <div>
-              <List list={list} onDismiss={this.onDismiss} />
+              <List
+                sortKey={sortKey}
+                onSort={this.onSort}
+                list={list}
+                onDismiss={this.onDismiss}
+              />
               <div className="interactions">
-                <Button
-                  onClick={() =>
-                    this.fetchSearchTopStories(searchKey, page + 1)
-                  }
-                >
-                  More
-                </Button>
+                {isLoading ? (
+                  <PageLoading />
+                ) : (
+                  <ButtonWithLoading
+                    isLoading={isLoading}
+                    onClick={() =>
+                      this.fetchSearchTopStories(searchKey, page + 1)
+                    }
+                  >
+                    More
+                  </ButtonWithLoading>
+                )}
               </div>
             </div>
           )}
@@ -161,5 +220,10 @@ class App extends Component {
     );
   }
 }
+
+Button.propTypes = {
+  onClick: propTypes.func.isRequired,
+  children: propTypes.node.isRequired
+};
 
 export default App;
