@@ -1,26 +1,16 @@
 import React from 'react';
 
-class Search extends React.Component {
-  componentDidMount() {
-    if (this.input) {
-      this.input.focus();
-    }
-  }
-  render() {
-    const { value, onSubmit, onChange, children } = this.props;
-    return (
-      // children is received as props which was passed to Search as child text element
-      <form onSubmit={onSubmit}>
-        <input
-          value={value}
-          type="text"
-          onChange={onChange}
-          ref={el => (this.input = el)}
-        />
-        <button type="submit"> {children} </button>
-      </form>
-    );
-  }
-}
+// Search Input Component
+const Search = ({ value, onChange, onSubmit, children }) => (
+  <form className="header__search" onSubmit={onSubmit}>
+    <input
+      type="text"
+      value={value}
+      onChange={onChange}
+      placeholder="Search input..."
+    />
+    <button type="submit">{children}</button>
+  </form>
+);
 
 export default Search;

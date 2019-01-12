@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+
+// Local imports
 import Search from './Search';
-import List from './List';
-import './App.css';
+import Table from './Table';
 import Button from './Button';
-import propTypes from 'prop-types';
-
 import pageLoading from '../assets/images/post-loader.gif';
-
+import bulb from '../assets/icons/lightbulb.svg';
+import './App.scss';
 import {
-  DEFAULT_QUERY,
   DEFAULT_HPP,
   PATH_BASE,
   PATH_SEARCH,
@@ -18,212 +17,188 @@ import {
   PARAM_HPP
 } from '../constants';
 
-const PageLoading = () => {
-  return (
-    <div>
-      <img src={pageLoading} alt="page loading" />
-    </div>
-  );
+// function for caching hits with search keys
+const updateSearchTopStoriesState = (hits, page) => prevState => {
+  const { searchKey, results } = prevState;
+  // checks if the result exits or not
+  const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
+  // creating updateHits with old and new hits
+  const updatedHits = [...oldHits, ...hits];
+
+  // return object with udpated hits and setting loading to false
+  return {
+    results: {
+      ...results,
+      [searchKey]: { hits: updatedHits, page }
+    },
+    isLoading: false
+  };
 };
-
-const PostLoading = () => {
-  return (
-    <div>
-      <img src={pageLoading} alt="post loading" />
-    </div>
-  );
-};
-
-const withLoading = Component => ({ isLoading, ...rest }) =>
-  isLoading ? <PostLoading /> : <Component {...rest} />;
-
-const ButtonWithLoading = withLoading(Button);
 
 class App extends Component {
-  _isMounted = false;
   constructor(props) {
     super(props);
+
     this.state = {
-      lists: null,
+      results: null,
       searchKey: '',
-      searchTerm: DEFAULT_QUERY,
+      searchTerm: '',
       error: null,
       isLoading: false,
-      sortKey: 'NONE'
+      sortKey: 'NONE',
+      isSortReverse: false
     };
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
+    this.fetchSearchTopStories = this.fetchSearchTopStories.bind(this);
     this.onSearchChange = this.onSearchChange.bind(this);
     this.onSearchSubmit = this.onSearchSubmit.bind(this);
     this.onDismiss = this.onDismiss.bind(this);
-    this.onSort = this.onSort.bind(this);
   }
 
-  setSearchTopStories(list) {
-    const { hits, page } = list;
-    const { searchKey, lists } = this.state;
-    const oldHits = lists && lists[searchKey] ? lists[searchKey].hits : [];
-    const updatedHits = [...oldHits, ...hits];
-    this.setState(() => {
-      return {
-        lists: { ...lists, [searchKey]: { hits: updatedHits, page } },
-        isLoading: false
-      };
-    });
+  // function to chekc wheather API call needs to made or not
+  needsToSearchTopStories(searchTerm) {
+    return !this.state.results[searchTerm];
   }
 
+  // updating the state with updated hits
+  setSearchTopStories(result) {
+    const { hits, page } = result;
+    this.setState(updateSearchTopStoriesState(hits, page));
+  }
+
+  // function to make API call
   fetchSearchTopStories(searchTerm, page = 0) {
-    this.setState(() => {
-      return { isLoading: true };
-    });
+    this.setState({ isLoading: true });
+
     axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
-      .then(list => this._isMounted && this.setSearchTopStories(list.data))
-      .catch(
-        error =>
-          this._isMounted &&
-          this.setState(() => {
-            return { error };
-          })
-      );
+      .then(result => this.setSearchTopStories(result.data))
+      .catch(error => this._isMounted && this.setState({ error }));
   }
 
-  needsToSearchTopStories(searchTerm) {
-    return !this.state.lists[searchTerm];
+  // intial fetching of the top stories
+  fetchInitialTopStories(page = 0) {
+    this.setState({ isLoading: true });
+    axios(
+      `${PATH_BASE}${PATH_SEARCH}?tags=story&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
+    )
+      .then(result => this.setSearchTopStories(result.data))
+      .catch(error => this._isMounted && this.setState({ error }));
   }
 
   componentDidMount() {
-    this._isMounted = true;
     const { searchTerm } = this.state;
-    this.setState(() => {
-      return {
-        searchKey: searchTerm
-      };
-    });
-    this.fetchSearchTopStories(searchTerm);
+    this.setState({ searchKey: searchTerm });
+    this.fetchInitialTopStories();
   }
 
-  componentWillUnmount() {
-    this._isMounted = false;
-  }
-
-  onSearchSubmit(event) {
-    event.preventDefault();
-    console.log('onSearchSubmit triggered.');
-    const { searchTerm } = this.state;
-    this.setState(() => {
-      return {
-        searchKey: searchTerm
-      };
-    });
-
-    if (this.needsToSearchTopStories(searchTerm)) {
-      console.log(searchTerm);
-      this.fetchSearchTopStories(searchTerm);
-    }
-  }
-
-  onDismiss(id) {
-    const { lists, searchKey } = this.state;
-    const { hits, page } = lists[searchKey];
-    const isNotId = item => item.objectID !== id;
-    const newList = hits.filter(isNotId);
-    this.setState(() => {
-      return {
-        lists: {
-          ...lists,
-          [searchKey]: { hits: newList, page }
-        }
-      };
-    });
-  }
-
+  // updating state with search input
   onSearchChange(event) {
     this.setState({ searchTerm: event.target.value });
   }
 
-  onSort(sortKey) {
-    this.setState(sortKey => {
-      return {
-        sortKey
-      };
+  // search submit after a check
+  onSearchSubmit(event) {
+    const { searchTerm } = this.state;
+    this.setState({ searchKey: searchTerm });
+
+    if (this.needsToSearchTopStories(searchTerm)) {
+      this.fetchSearchTopStories(searchTerm);
+    }
+    event.preventDefault();
+  }
+
+  // post dismiss function
+  onDismiss(id) {
+    const { searchKey, results } = this.state;
+    const { hits, page } = results[searchKey];
+
+    const isNotId = item => item.objectID !== id;
+    const updatedHits = hits.filter(isNotId);
+
+    this.setState({
+      results: {
+        ...results,
+        [searchKey]: { hits: updatedHits, page }
+      }
     });
   }
 
   render() {
-    // object destructuring
-    const {
-      lists,
-      searchKey,
-      searchTerm,
-      error,
-      isLoading,
-      sortKey
-    } = this.state;
-    const page = (lists && lists[searchKey] && lists[searchKey].page) || 0;
-    const list = (lists && lists[searchKey] && lists[searchKey].hits) || [];
-    // if no data in list, return null
-    // if (!list) {
-    //   return null;
-    // }
+    const { searchTerm, results, searchKey, error, isLoading } = this.state;
 
-    // filtering the list based on search input and then mapping over it to render filtered list (refactored and removed , to ensure server side fitlering)
-    // const filteredList = list.hits.filter(item => {
-    //   return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-    // });
+    // setting up page value
+    const page =
+      (results && results[searchKey] && results[searchKey].page) || 0;
+
+    // setting up hits
+    const list =
+      (results && results[searchKey] && results[searchKey].hits) || [];
 
     return (
       <div className="page">
         <div className="interactions">
-          {/* Search only handles the search term event */}
-          <Search
-            value={searchTerm}
-            onChange={this.onSearchChange}
-            onSubmit={this.onSearchSubmit}
-          >
-            {/* Passing Search text as child to this component which can be access from this.props in Search component */}
-            Search
-          </Search>
-
-          {error ? (
-            <p>
-              Something went wrong. Possible issue with URL or type of search,
-              please try again or report the issue.
-            </p>
-          ) : (
-            <div>
-              <List
-                sortKey={sortKey}
-                onSort={this.onSort}
-                list={list}
-                onDismiss={this.onDismiss}
-              />
-              <div className="interactions">
-                {isLoading ? (
-                  <PageLoading />
-                ) : (
-                  <ButtonWithLoading
-                    isLoading={isLoading}
-                    onClick={() =>
-                      this.fetchSearchTopStories(searchKey, page + 1)
-                    }
-                  >
-                    More
-                  </ButtonWithLoading>
-                )}
-              </div>
+          <div className="header">
+            <div className="header__logo">
+              <img src={bulb} alt="" /> Hacker News Project
             </div>
-          )}
+            <Search
+              value={searchTerm}
+              onChange={this.onSearchChange}
+              onSubmit={this.onSearchSubmit}
+            >
+              Search
+            </Search>
+          </div>
         </div>
+        {error ? (
+          <div className="interactions">
+            <p>Something went wrong.</p>
+          </div>
+        ) : (
+          <Table list={list} onDismiss={this.onDismiss} />
+        )}
+        <div className="interactions">
+          <ButtonWithLoading
+            className="more-btn"
+            isLoading={isLoading}
+            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
+          >
+            More
+          </ButtonWithLoading>
+        </div>
+
+        {!isLoading && (
+          <footer>
+            Created By{' '}
+            <a
+              href="https://lawrenced.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Lawrence
+            </a>
+          </footer>
+        )}
       </div>
     );
   }
 }
 
-Button.propTypes = {
-  onClick: propTypes.func.isRequired,
-  children: propTypes.node.isRequired
-};
+// loading component
+const Loading = () => (
+  <div>
+    <img src={pageLoading} alt="page/post loading " />
+  </div>
+);
+
+// HOC for condition rendering of button
+const withLoading = Component => ({ isLoading, ...rest }) =>
+  isLoading ? <Loading /> : <Component {...rest} />;
+
+// Button component
+const ButtonWithLoading = withLoading(Button);
 
 export default App;
