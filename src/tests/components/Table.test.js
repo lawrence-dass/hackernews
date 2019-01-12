@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
 import Enzyme, { shallow } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
-import List from '../../components/List';
+import Table from '../../components/Table';
 
 // Adpater setup for enzyme
 
@@ -19,17 +19,17 @@ describe('List component', () => {
 
   test('render List without crashing', () => {
     const div = document.createElement('div');
-    ReactDOM.render(<List {...props} />, div);
+    ReactDOM.render(<Table {...props} />, div);
   });
 
   test('should List compoenent correctly', () => {
-    const component = renderer.create(<List {...props} />);
+    const component = renderer.create(<Table {...props} />);
     const tree = component.toJSON();
     expect(tree).toMatchSnapshot();
   });
 
   test('should show two item in the list', () => {
-    const wrapper = shallow(<List {...props} />);
-    expect(wrapper.find('.list-row').length).toBe(2);
+    const wrapper = shallow(<Table {...props} />);
+    expect(wrapper.find('.table-row').length).toBe(2);
   });
 });

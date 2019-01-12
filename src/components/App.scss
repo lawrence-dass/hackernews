@@ -1,7 +1,7 @@
 .header {
   display: grid;
   grid-template-columns: 35% 65%;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   text-align: left;
 
   &__logo {
@@ -12,6 +12,10 @@
 
   &__search {
     text-align: left;
+
+    & label {
+      opacity: 0;
+    }
 
     & input {
       color: #555;
@@ -42,6 +46,7 @@
   font-size: 16px;
   justify-content: space-between;
   line-height: 24px;
+  margin-bottom: 1rem;
   padding: 0 10px;
 }
 
@@ -117,11 +122,11 @@ footer {
   margin-top: 0.5rem;
   padding-bottom: 0.5rem;
   text-align: right;
-  position: absolute;
+
   bottom: 10px;
 
   a {
-    color: royalblue;
+    color: rgb(31, 62, 155);
     text-decoration: none;
   }
 }

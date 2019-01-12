@@ -1,15 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Search Component should render Search component correctly 1`] = `
-<form>
+<form
+  className="header__search"
+>
+  <label
+    htmlFor="search"
+  >
+     Search
+  </label>
   <input
+    id="search"
+    placeholder="Search input..."
     type="text"
   />
   <button
     type="submit"
-  >
-     
-     
-  </button>
+  />
 </form>
 `;

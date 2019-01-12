@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import renderer from 'react-test-renderer';
 import App from '../../components/App';
-import List from '../../components/List';
 
 describe('App Component', () => {
   test('render App without crashing', () => {

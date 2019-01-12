@@ -7,36 +7,113 @@ exports[`App Component should render App Component correctly 1`] = `
   <div
     className="interactions"
   >
-    <form
-      onSubmit={[Function]}
+    <div
+      className="header"
     >
-      <input
-        onChange={[Function]}
-        type="text"
-        value="redux"
-      />
-      <button
-        type="submit"
-      >
-         
-        Search
-         
-      </button>
-    </form>
-    <div>
       <div
-        className="list"
-      />
-      <div
-        className="interactions"
+        className="header__logo"
       >
-        <div>
-          <img
-            alt="page loading"
-            src="post-loader.gif"
-          />
-        </div>
+        <img
+          alt=""
+          src="lightbulb.svg"
+        />
+         Hacker News Project
       </div>
+      <form
+        className="header__search"
+        onSubmit={[Function]}
+      >
+        <label
+          htmlFor="search"
+        >
+           Search
+        </label>
+        <input
+          id="search"
+          onChange={[Function]}
+          placeholder="Search input..."
+          type="text"
+          value=""
+        />
+        <button
+          type="submit"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  </div>
+  <div
+    className="table"
+  >
+    <div
+      className="table-header"
+    >
+      <span>
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Title 
+          <img
+            alt="sort"
+            src="select-arrows.svg"
+          />
+        </button>
+      </span>
+      <span>
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Author 
+          <img
+            alt="sort"
+            src="select-arrows.svg"
+          />
+        </button>
+      </span>
+      <span>
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Comments 
+          <img
+            alt="sort"
+            src="select-arrows.svg"
+          />
+        </button>
+      </span>
+      <span>
+        <button
+          className="button-inline"
+          onClick={[Function]}
+          type="button"
+        >
+          Points 
+          <img
+            alt="sort"
+            src="select-arrows.svg"
+          />
+        </button>
+      </span>
+      <span>
+        Archive
+      </span>
+    </div>
+  </div>
+  <div
+    className="interactions"
+  >
+    <div>
+      <img
+        alt="page/post loading "
+        src="post-loader.gif"
+      />
     </div>
   </div>
 </div>
