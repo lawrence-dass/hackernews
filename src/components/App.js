@@ -14,11 +14,11 @@ import {
   PATH_SEARCH,
   PARAM_SEARCH,
   PARAM_PAGE,
-  PARAM_HPP
+  PARAM_HPP,
 } from '../constants';
 
 // function for caching hits with search keys
-const updateSearchTopStoriesState = (hits, page) => prevState => {
+const updateSearchTopStoriesState = (hits, page) => (prevState) => {
   const { searchKey, results } = prevState;
   // checks if the result exits or not
   const oldHits = results && results[searchKey] ? results[searchKey].hits : [];
@@ -29,9 +29,9 @@ const updateSearchTopStoriesState = (hits, page) => prevState => {
   return {
     results: {
       ...results,
-      [searchKey]: { hits: updatedHits, page }
+      [searchKey]: { hits: updatedHits, page },
     },
-    isLoading: false
+    isLoading: false,
   };
 };
 
@@ -46,7 +46,7 @@ class App extends Component {
       error: null,
       isLoading: false,
       sortKey: 'NONE',
-      isSortReverse: false
+      isSortReverse: false,
     };
     this.needsToSearchTopStories = this.needsToSearchTopStories.bind(this);
     this.setSearchTopStories = this.setSearchTopStories.bind(this);
@@ -74,8 +74,8 @@ class App extends Component {
     axios(
       `${PATH_BASE}${PATH_SEARCH}?${PARAM_SEARCH}${searchTerm}&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
-      .then(result => this.setSearchTopStories(result.data))
-      .catch(error => this._isMounted && this.setState({ error }));
+      .then((result) => this.setSearchTopStories(result.data))
+      .catch((error) => this._isMounted && this.setState({ error }));
   }
 
   // intial fetching of the top stories
@@ -84,8 +84,8 @@ class App extends Component {
     axios(
       `${PATH_BASE}${PATH_SEARCH}?tags=story&${PARAM_PAGE}${page}&${PARAM_HPP}${DEFAULT_HPP}`
     )
-      .then(result => this.setSearchTopStories(result.data))
-      .catch(error => this._isMounted && this.setState({ error }));
+      .then((result) => this.setSearchTopStories(result.data))
+      .catch((error) => this._isMounted && this.setState({ error }));
   }
 
   componentDidMount() {
@@ -115,14 +115,14 @@ class App extends Component {
     const { searchKey, results } = this.state;
     const { hits, page } = results[searchKey];
 
-    const isNotId = item => item.objectID !== id;
+    const isNotId = (item) => item.objectID !== id;
     const updatedHits = hits.filter(isNotId);
 
     this.setState({
       results: {
         ...results,
-        [searchKey]: { hits: updatedHits, page }
-      }
+        [searchKey]: { hits: updatedHits, page },
+      },
     });
   }
 
@@ -138,50 +138,52 @@ class App extends Component {
       (results && results[searchKey] && results[searchKey].hits) || [];
 
     return (
-      <div className="page">
-        <div className="interactions">
-          <div className="header">
-            <div className="header__logo">
-              <img src={bulb} alt="" /> Hacker News Project
-            </div>
-            <Search
-              value={searchTerm}
-              onChange={this.onSearchChange}
-              onSubmit={this.onSearchSubmit}
-            >
-              Search
-            </Search>
-          </div>
-        </div>
-        {error ? (
+      <div className="appContainer">
+        <div className="page">
           <div className="interactions">
-            <p>Something went wrong.</p>
+            <div className="header">
+              <div className="header__logo">
+                <img src={bulb} alt="" /> Hacker News
+              </div>
+              <Search
+                value={searchTerm}
+                onChange={this.onSearchChange}
+                onSubmit={this.onSearchSubmit}
+              >
+                Search
+              </Search>
+            </div>
           </div>
-        ) : (
-          <Table list={list} onDismiss={this.onDismiss} />
-        )}
-        <div className="interactions">
-          <ButtonWithLoading
-            className="more-btn"
-            isLoading={isLoading}
-            onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
-          >
-            More
-          </ButtonWithLoading>
-        </div>
-
-        {!isLoading && (
-          <footer>
-            Created By{' '}
-            <a
-              href="https://lawrenced.com"
-              target="_blank"
-              rel="noopener noreferrer"
+          {error ? (
+            <div className="interactions">
+              <p>Something went wrong.</p>
+            </div>
+          ) : (
+            <Table list={list} onDismiss={this.onDismiss} />
+          )}
+          <div className="interactions">
+            <ButtonWithLoading
+              className="more-btn"
+              isLoading={isLoading}
+              onClick={() => this.fetchSearchTopStories(searchKey, page + 1)}
             >
-              Lawrence
-            </a>
-          </footer>
-        )}
+              More
+            </ButtonWithLoading>
+          </div>
+
+          {!isLoading && (
+            <footer>
+              Created By{' '}
+              <a
+                href="https://lawrenced.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Lawrence
+              </a>
+            </footer>
+          )}
+        </div>
       </div>
     );
   }
@@ -195,7 +197,7 @@ const Loading = () => (
 );
 
 // HOC for condition rendering of button
-const withLoading = Component => ({ isLoading, ...rest }) =>
+const withLoading = (Component) => ({ isLoading, ...rest }) =>
   isLoading ? <Loading /> : <Component {...rest} />;
 
 // Button component

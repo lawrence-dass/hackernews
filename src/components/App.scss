@@ -22,6 +22,10 @@
       width: 25%;
     }
 
+    & button {
+      background-color: #fff;
+    }
+
     & button:hover {
       color: rgb(31, 66, 168);
       border: 1px solid rgba(65, 105, 225, 0.753);
@@ -148,7 +152,10 @@ footer {
   }
 }
 
-.more-btn:hover {
-  color: rgb(31, 66, 168);
-  border: 1px solid rgba(65, 105, 225, 0.753);
+.more-btn {
+  background-color: #fff;
+  &:hover {
+    color: rgb(31, 66, 168);
+    border: 1px solid rgba(65, 105, 225, 0.753);
+  }
 }
